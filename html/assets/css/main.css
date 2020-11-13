@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;300;400;600;700;800;900&display=swap');
+
+:root {
+    --font:'Nunito Sans', sans-serif;
+    --primary: #6246ea;
+    --primary-light: #6d54eb;
+    --text: #091E42;
+    --background: #fff;
+    --accent-1: #F4F5F7;
+    --accent-2: #DFE1E6;
+    --accent-3: #A5ADBA;
+    --accent-4: #8993A4;
+    --accent-5: #5E6C84;
+    --accent-6: #344563;
+    --accent-7: #172B4D;
+    --accent-8: #091E42;
+
+    --radius: 5px;
+    --shadow: 0 2px 4px 0 rgba(207, 215, 230, 0.4);
+    ;
+}
+
+body {
+    font-family: 'Nunito Sans', sans-serif !important;
+    color: var(--text) !important;
+}
+
+.btn {
+    border-radius: 60px !important;
+}
+
+.btn-primary {
+    box-shadow: var(--shadow) !important;
+    background-color: var(--primary) !important;
+    border: 1px solid var(--primary) !important;
+    height: 40px;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    font-size: 14px !important;
+    transition: 250ms;
+}
+
+.btn-primary:hover {
+    box-shadow: none !important;
+    background-color: var(--primary-light) !important;
+    border: 1px solid var(--primary-light) !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    font-size: 14px !important;
+}
+
+.btn-primary:active {
+    background-color: var(--primary-light) !important;
+    border: 1px solid var(--primary-light) !important;
+}
+
+.btn-secondary{
+    box-shadow: var(--shadow) !important;
+    background-color: var(--accent-2) !important;
+    color: var(--accent-8) !important;
+    border: 1px solid var(--accent-2) !important;
+    height: 32px;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    font-size: 14px !important;
+    transition: 250ms;
+}
+
+
+.form-control {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    box-shadow: var(--shadow) !important;
+    border: 1px solid var(--accent-2) !important;
+    border-radius: var(--radius) !important;
+    color: var(--text) !important;
+    font-size: 14px !important;
+min-height: 40px;
+}
+
+.form-control:focus {
+    border: 1px solid var(--accent-3) !important;
+}
+
+.text-muted {
+    color: var(--accent-4) !important;
+}
+
+#sidebar {
+    height: 100% !important;
+    background-color: var(--accent-1);
+    border-right: 1px solid var(--accent-1);
+    position: fixed !important;
+    width: 20vw;
+    overflow: auto;
+}
+
+#mainarea {
+    background-color: #FAFBFC !important;
+    overflow-y: auto !important;
+    margin-left: 20vw;
+    /*background-image: radial-gradient(var(--accent-1) 1px, var(--background) 1px);*/
+    background-attachment: scroll;
+    background-size: 20px 20px;
+}
+
+.full-height {
+    height: 100vh !important;
+}
+
+.nav-dash {
+    color: var(--accent-5) !important;
+    border-radius: 0px !important;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    width: 100%;
+    box-shadow: none !important;
+}
+
+.nav-dash.active {
+    background-color: transparent !important;
+    font-weight: 700 !important;
+    color: var(--accent-7) !important;
+    border-left: 2px solid var(--primary);
+    font-weight: 600;
+}
+
+.nav-dash:hover {
+    background-color: transparent !important;
+    color: var(--accent-6) !important;
+}
+
+.nav-dash.active:hover {
+    background-color: var(--accent-1) !important;
+    color: var(--accent-7) !important;
+}
+
+.nav-dash:active {
+    transition: 0.2s ease-in;
+    transform: scale(0.99);
+}
+
+::-moz-selection {
+    /* Code for Firefox */
+    color: var(--text) !important;
+    background: yellow !important;
+}
+
+::selection {
+    color: var(--text) !important;
+    background: var(--accent-2) !important;
+}
+
+select {
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 8px !important;
+    background: url(../img/unfold.svg) 99% / 4% no-repeat;
+    background-repeat: no-repeat;
+}
+
+label {
+    font-size: 12px !important;
+    color: var(--accent-5) !important;
+    margin-bottom: 4px !important;
+
+}
+
+.form-check-label {
+    font-size: 14px !important;
+    color: var(--accent-5) !important;
+}
+
+.custom-file-label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    height: calc(1.5em + .75rem + 2px);
+    padding: 8px, 8px, 8px, 8px !important;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--accent-5);
+    background-color: var(--background);
+    border: 1px solid var(--accent-2);
+    border-radius: var(--radius) !important;
+}
+
+.ic {
+    height: 14px;
+    width: 14px;
+}
+
+.top-top {
+    width: 75vw;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(18px);
+    z-index: 999;
+}
+
+.breadcrumb {
+    background-color: transparent !important;
+    padding: 0px !important;
+}
+
+.breadcrumb-item>a {
+    font-size: 14px !important;
+    color: var(--accent-5) !important;
+}
+
+.breadcrumb-item.active {
+    font-size: 14px !important;
+    color: var(--primary) !important;
+}
+
+.red {
+    filter: invert(43%) sepia(28%) saturate(381%) hue-rotate(179deg) brightness(90%) contrast(87%);
+}
+
+.btn-nv {
+    font-size: 32px !important;
+    margin-left: 10px;
+    border-radius: var(--radius);
+    padding: 4px;
+    cursor: pointer;
+} 
+.btn-nv:hover{
+    opacity: 0.8;
+}
+.card{
+    border: 1px solid var(--accent-2);
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow) !important;
+}
+.ql-container.ql-snow {
+    border: none !important;
+}
+.ql-toolbar.ql-snow {
+    border: none !important;
+    border-bottom: 1px solid var(--accent-1) !important;
+    box-sizing: border-box;
+    font-family: var(--font) !important;
+    padding: 8px;
+}
+
+.ql-toolbar .ql-stroke {
+    fill: none !important;
+    stroke: var(--accent-5) !important;
+}
+
+.ql-toolbar .ql-fill {
+    fill: var(--accent-5) !important;
+    stroke: none !important;
+}
+
+.ql-toolbar .ql-picker {
+    color: var(--accent-5) !important;
+}
+svg:hover .ql-stroke {
+    fill: none !important;
+    stroke: var(--primary) !important; 
+}

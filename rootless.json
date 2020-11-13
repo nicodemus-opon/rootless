@@ -1,0 +1,55 @@
+{
+    "model": {
+        "user": {
+            "name": {
+                "type": "text"
+            },
+            "avatar": {
+                "type": "text"
+            },
+            "account": {
+                "type": "select",
+                "options": [
+                    "op1",
+                    "op2",
+                    "op3"
+                ]
+            },
+            "profile": {
+                "type": "richText"
+            }
+        },
+        "profile": {
+            "name": {
+                "type": "text"
+            },
+            "avatar": {
+                "type": "text"
+            },
+            "account": {
+                "type": "select",
+                "options": [
+                    "op1",
+                    "op2",
+                    "op3"
+                ]
+            },
+            "profile": {
+                "type": "richText"
+            }
+        }
+    },
+    "auth": {
+        "users": {
+            "username": "nico",
+            "password": "123",
+            "apiKey": "gvjvgjgjvgvg",
+            "priority": "root"
+        }
+    },
+    "config": {
+        "app": "rootless",
+        "favicon": "favicon/url/fav.png",
+        "theme": "vanilla"
+    }
+}
