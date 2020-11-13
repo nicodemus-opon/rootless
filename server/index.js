@@ -1,22 +1,29 @@
 const express = require('express')
 const store = require('data-store')({ path: process.cwd() + 'store.rootless' });
+const path = require('path');
+
+require('custom-env').env()
 var crypto = require('crypto');
 // Difining algorithm 
-const algorithm = 'aes-256-cbc';
-const key = "2wrH24LYjLbCfMZghR1WvUE0386nG1sc";
-const iv = "kAO1TRHM6zWInFWm";
-var authKey = "69420";
+const algorithm = process.env.ENCRYPTION_ALGORITHM;
+const key = process.env.ENCRYPTION_KEY;
+const iv = process.env.IV;
+var authKey = process.env.APIKEY;
 
 const app = express()
+const router = express.Router();
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-const port = 3000
+
+const port = process.env.PORT
+
 
 
 function encrypt(text) {
     var cipher = crypto.createCipheriv(algorithm, key, iv);
     var encrypted = cipher.update(text, 'utf8', 'hex') + cipher.final('hex');
-    console.log(encrypted)
+    return (encrypted.toString())
 }
 function decrypt(text) {
     var decipher = crypto.createDecipheriv(algorithm, key, iv);
@@ -46,8 +53,12 @@ function filterBy(list, criteria) {
     );
 }
 
+function url(urln) {
+    return (path.join(__dirname + '/html/' + urln))
+}
+
 app.get('/', (req, res) => {
-    res.send("nye");
+    res.sendFile(path.join(__dirname + '/html/index.html'));
 })
 app.get('/api', (req, res) => {
     res.send(message("success", "rootless server running", "200", "SERVER_OK"));
@@ -110,7 +121,9 @@ app.route('/api/:model')
         store.save();
         res.send(store.get(model))
     })
+app.use('/', router);
+app.use(express.static("public"));
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
+    console.log(`Rootless listening at http://localhost:${port}`)
 })
