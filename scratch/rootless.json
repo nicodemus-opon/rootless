@@ -50,6 +50,7 @@
     "config": {
         "app": "rootless",
         "favicon": "favicon/url/fav.png",
-        "theme": "vanilla"
+        "theme": "vanilla",
+        "cors":true
     }
 }

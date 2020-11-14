@@ -2,8 +2,8 @@
 
 :root {
     --font:'Nunito Sans', sans-serif;
-    --primary: #6246ea;
-    --primary-light: #6d54eb;
+    --primary: #47cf73;
+    --primary-light: #58d17f;
     --text: #091E42;
     --background: #fff;
     --accent-1: #F4F5F7;
@@ -26,16 +26,18 @@ body {
 }
 
 .btn {
-    border-radius: 60px !important;
+    border-radius: var(--radius) !important;
 }
 
 .btn-primary {
     box-shadow: var(--shadow) !important;
+    color: var(--accent-8) !important;
+    font-weight: 600 !important;
     background-color: var(--primary) !important;
     border: 1px solid var(--primary) !important;
     height: 40px;
-    padding-left: 20px !important;
-    padding-right: 20px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
     padding-top: 0px !important;
     padding-bottom: 0px !important;
     font-size: 14px !important;
@@ -269,4 +271,8 @@ label {
 svg:hover .ql-stroke {
     fill: none !important;
     stroke: var(--primary) !important; 
+}
+svg:hover .ql-fill {
+    fill: var(--primary) !important;
+    stroke: none !important;
 }
