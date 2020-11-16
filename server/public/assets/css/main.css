@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;300;400;600;700;800;900&display=swap');
 
 :root {
-    --font:'Nunito Sans', sans-serif;
-    --primary: #47cf73;
-    --primary-light: #58d17f;
+    --font: 'Nunito Sans', sans-serif;
+    --primary: #006cff;
+    --primary-light: #247cf8;
     --text: #091E42;
     --background: #fff;
     --accent-1: #F4F5F7;
@@ -17,6 +17,7 @@
 
     --radius: 5px;
     --shadow: 0 2px 4px 0 rgba(207, 215, 230, 0.4);
+    --shadow-lg: 2px 4px 8px 0 rgba(207, 215, 230, 0.4);
     ;
 }
 
@@ -26,18 +27,19 @@ body {
 }
 
 .btn {
-    border-radius: var(--radius) !important;
+    border-radius: 60px !important;
 }
 
 .btn-primary {
     box-shadow: var(--shadow) !important;
-    color: var(--accent-8) !important;
+    color: var(--background) !important;
     font-weight: 600 !important;
-    background-color: var(--primary) !important;
-    border: 1px solid var(--primary) !important;
+    background-color: transparent !important;
+    background: linear-gradient(#389FFD, #006cff);
+    border: none !important;
     height: 40px;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     padding-top: 0px !important;
     padding-bottom: 0px !important;
     font-size: 14px !important;
@@ -47,18 +49,18 @@ body {
 .btn-primary:hover {
     box-shadow: none !important;
     background-color: var(--primary-light) !important;
-    border: 1px solid var(--primary-light) !important;
     padding-top: 0px !important;
     padding-bottom: 0px !important;
     font-size: 14px !important;
+    transform: scale(1.02);
 }
 
 .btn-primary:active {
     background-color: var(--primary-light) !important;
-    border: 1px solid var(--primary-light) !important;
+    transform: scale(0.98);
 }
 
-.btn-secondary{
+.btn-secondary {
     box-shadow: var(--shadow) !important;
     background-color: var(--accent-2) !important;
     color: var(--accent-8) !important;
@@ -83,11 +85,12 @@ body {
     border-radius: var(--radius) !important;
     color: var(--text) !important;
     font-size: 14px !important;
-min-height: 40px;
+    min-height: 40px;
 }
 
 .form-control:focus {
     border: 1px solid var(--accent-3) !important;
+    box-shadow: var(--shadow-lg) !important;
 }
 
 .text-muted {
@@ -165,7 +168,7 @@ select {
     -webkit-appearance: none;
     appearance: none;
     padding-right: 8px !important;
-    background: url(../img/unfold.svg) 99% / 4% no-repeat;
+    background: url(../img/unfold.svg) 99% / 3% no-repeat;
     background-repeat: no-repeat;
 }
 
@@ -235,18 +238,22 @@ label {
     border-radius: var(--radius);
     padding: 4px;
     cursor: pointer;
-} 
-.btn-nv:hover{
+}
+
+.btn-nv:hover {
     opacity: 0.8;
 }
-.card{
+
+.card {
     border: 1px solid var(--accent-2);
     border-radius: var(--radius) !important;
     box-shadow: var(--shadow) !important;
 }
+
 .ql-container.ql-snow {
     border: none !important;
 }
+
 .ql-toolbar.ql-snow {
     border: none !important;
     border-bottom: 1px solid var(--accent-1) !important;
@@ -268,11 +275,18 @@ label {
 .ql-toolbar .ql-picker {
     color: var(--accent-5) !important;
 }
+
 svg:hover .ql-stroke {
     fill: none !important;
-    stroke: var(--primary) !important; 
+    stroke: var(--primary) !important;
 }
+
 svg:hover .ql-fill {
     fill: var(--primary) !important;
     stroke: none !important;
+}
+
+pre {
+    background-color: var(--accent-1) !important;
+    color: var(--accent-8) !important;
 }

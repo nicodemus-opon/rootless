@@ -2,13 +2,39 @@ const express = require('express')
 const store = require('data-store')({ path: process.cwd() + '/store/.store.json' });
 const path = require('path');
 const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
+
+const util = require("util");
+const multer = require("multer");
+const maxSize = 2 * 1024 * 1024;
+
+let storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, __basedir + "/public/uploads/");
+  },
+  filename: (req, file, cb) => {
+    console.log(file.originalname);
+    cb(null, file.originalname);
+  },
+});
+
+let uploadFile = multer({
+  storage: storage,
+  limits: { fileSize: maxSize },
+}).single("file");
+
+let uploadFileMiddleware = util.promisify(uploadFile);
+module.exports = uploadFileMiddleware;
+
+
 
 require('custom-env').env("staging")
 var crypto = require('crypto');
-// Difining algorithm 
+
+// Encryption 
 const algorithm = process.env.ENCRYPTION_ALGORITHM;
 const key = process.env.ENCRYPTION_KEY;
-const iv = process.env.IV;
+const iv = process.env.ENCRYPTION_IV;
 var authKey = process.env.APIKEY;
 
 const app = express()
@@ -21,7 +47,7 @@ app.use('/', router);
 app.use(express.static("public"));
 
 const port = process.env.PORT
-
+console.clear()
 
 
 function encrypt(text) {
@@ -101,35 +127,71 @@ app.get('/api', (req, res) => {
     res.send(message("success", "rootless server running", "200", "SERVER_OK"));
 })
 app.get('/dump', (req, res) => {
-    if (auth(req.query.auth)) {
+    if (auth(req.query._auth)) {
         res.send(store.data);
     } else {
         res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
     }
 })
 app.get('/model', (req, res) => {
-    if (auth(req.query.auth)) {
+    if (auth(req.query._auth)) {
         res.send(Object.keys(store.data));
     } else {
         res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
     }
 })
-//i.e /api/user
+//i.e /api/product
 app.route('/api/:model')
     .get(function (req, res) {
-        var mkey = req.query.auth
+        var mkey = req.query._auth
         var model = req.params.model;
-        var fquery = req.query;
-        delete fquery.auth;
+        tm = req.query
+        var fquery = { ...tm };
+        //delete query keywords
+        delete fquery._auth;
+        delete fquery._limit;
+        delete fquery._start;
+        delete fquery._search;
+
         if (auth(mkey)) {
             if (Object.keys(fquery).length > 0) {
                 res.send(filterBy(store.data[model], fquery))
             } else {
-                var response = store.get(model);//req.params req.query
+                var response = store.get(model);
+
                 if (response === undefined) {
                     res.send(message("error", "requested model doesn't exist", "404", "UNDEFINED_MODEL"));
                 } else {
-                    res.send(response)
+                    //search
+                    if (req.query._search) {
+                        finalr = []
+                        for (let i = 0; i < response.length; i++) {
+                            var vls = Object.values(response[i])
+                            if(vls.find(a =>a.includes(req.query._search))){
+                                finalr.push(response[i])
+                            }
+                        }
+                        response=finalr;
+                    }
+
+                    //limit pagination
+                    if (req.query._limit) {
+                        if (isNaN(req.query._limit)) {
+                            res.send(message("error", "limit invalid datatype for limit,must be a number", "400", "INVALID_DATATYPE"));
+                        } else {
+                            var start = 0;
+                            if (req.query._start && !isNaN(req.query._start)) {
+                                start = req.query._start
+                            }
+                            var end = start + req.query._limit
+                            res.send(response.slice(start, end))
+                        }
+
+                    } else {
+                        //no query
+                        res.send(response)
+                    }
+
                 }
             }
         } else {
@@ -137,67 +199,54 @@ app.route('/api/:model')
         }
     })
     .post(function (req, res) {
-        //console.log(req.params.model);
         var model = req.params.model;
         var body = req.body;
-        var bodyj = JSON.stringify(body);
+        for (let i = 0; i < body.length; i++) {
+            body[i]._id = uuidv4()
+        }
+
+        //var bodyj = JSON.stringify(body);
         store.union(model, body);
-        res.send(store.get(model));
+        res.send(message("success", "data added successfully", "201", "OK"));
     })
-    /**
-     * {
-        "target": "username.nico"
-        }
-     */
     .delete(function (req, res) {
-        var model = req.params.model;
-        //var body = req.body;
-        var affected = 0
-        console.log(store.data[model].length)
-        for (var i = store.data[model].length - 1; i > -1; i--) {
-            if (isContainedIn(req.body.query, store.data[model][i])) {
-                store.data[model].splice(i, 1);
-                //delete store.data[model][i]
-                affected++
+        if (auth(req.query._auth)) {
+            var model = req.params.model;
+            var affected = 0
+            console.log(store.data[model].length)
+            for (var i = store.data[model].length - 1; i > -1; i--) {
+                if (isContainedIn(req.body.query, store.data[model][i])) {
+                    store.data[model].splice(i, 1);
+                    affected++
+                }
             }
+            store.save();
+            var msg = affected + " row(s) affected";
+            res.send(message("success", msg, "200", "OK"))
+        } else {
+            res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
         }
-        store.save();
-        var msg = affected + " row(s) affected";
-        res.send(message("success", msg, "200", "OK"))
-        /* var model = req.params.model;
-         var body = req.body;
-         var conct = body.target.split(".")
-         todelete = conct[0];
-         tar = conct[1];
- 
-         items = store.data[model];
-         var i = items.length;
-         for (let i = 0; i < items.length; i++) {
-             var element = items[i];
-             console.log(element);
-             if (items[i][todelete] === tar) {
-                 store.data[model].splice(i, 1);
-             }
-         }
-         store.save();
-         res.send(store.get(model))*/
+
+
     })
     .put(function (req, res) {
-        var model = req.params.model;
-        //var body = req.body;
-        var affected = 0
-        for (let i = 0; i < store.data[model].length; i++) {
-            if (isContainedIn(req.body.query, store.data[model][i])) {
-                store.data[model][i] = oupdate(store.data[model][i], req.body.data);
-                affected++
-
+        if (auth(req.query._auth)) {
+            var model = req.params.model;
+            //var body = req.body;
+            var affected = 0
+            for (let i = 0; i < store.data[model].length; i++) {
+                if (isContainedIn(req.body.query, store.data[model][i])) {
+                    store.data[model][i] = oupdate(store.data[model][i], req.body.data);
+                    affected++
+                }
             }
+            store.save()
+            console.log(affected);
+            var msg = affected + " row(s) affected";
+            res.send(message("success", msg, "200", "OK"))
+        } else {
+            res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
         }
-        store.save()
-        console.log(affected);
-        //var vv = filterBy(store.data[model][0], req.body.query)
-        var msg = affected + " row(s) affected";
-        res.send(message("success", msg, "200", "OK"))
     })
 
 app.listen(port, () => {
