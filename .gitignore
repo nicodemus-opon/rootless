@@ -3,3 +3,4 @@
 **.DS_STORE
 .*
 !.gitignore
+server/public/uploads

@@ -3,30 +3,21 @@ const store = require('data-store')({ path: process.cwd() + '/store/.store.json'
 const path = require('path');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
-
+var _fs = require("fs");
+const _utils = require("util");
 const util = require("util");
-const multer = require("multer");
-const maxSize = 2 * 1024 * 1024;
 
-let storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, __basedir + "/public/uploads/");
-  },
-  filename: (req, file, cb) => {
-    console.log(file.originalname);
-    cb(null, file.originalname);
-  },
+var multer   = require("multer");
+var pth=process.cwd() +'/public/uploads'
+var storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, pth );
+     },
+    filename: function (req, file, cb) {
+        cb(null , file.originalname);
+    }
 });
-
-let uploadFile = multer({
-  storage: storage,
-  limits: { fileSize: maxSize },
-}).single("file");
-
-let uploadFileMiddleware = util.promisify(uploadFile);
-module.exports = uploadFileMiddleware;
-
-
+var upload   = multer({ storage: storage })
 
 require('custom-env').env("staging")
 var crypto = require('crypto');
@@ -167,11 +158,11 @@ app.route('/api/:model')
                         finalr = []
                         for (let i = 0; i < response.length; i++) {
                             var vls = Object.values(response[i])
-                            if(vls.find(a =>a.includes(req.query._search))){
+                            if (vls.find(a => a.includes(req.query._search))) {
                                 finalr.push(response[i])
                             }
                         }
-                        response=finalr;
+                        response = finalr;
                     }
 
                     //limit pagination
@@ -248,6 +239,13 @@ app.route('/api/:model')
             res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
         }
     })
+
+app.post("/files", upload.any(), function (req, res) {
+    var files = req.files;
+    if (files) {
+        res.send(req.files);
+    }
+});
 
 app.listen(port, () => {
     console.log(`Rootless 🌲 listening at http://localhost:${port}`)
