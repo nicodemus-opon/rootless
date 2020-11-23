@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;300;400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@200;300;400;600;700;800;900&display=swap');
 
 :root {
-    --font: 'Nunito Sans', sans-serif;
+    --font: 'Rubik', sans-serif;
     --primary: #006cff;
     --primary-light: #247cf8;
     --text: #091E42;
@@ -15,6 +15,8 @@
     --accent-7: #172B4D;
     --accent-8: #091E42;
 
+    --bg-dark: #11111e;
+
     --radius: 5px;
     --shadow: 0 2px 4px 0 rgba(207, 215, 230, 0.4);
     --shadow-lg: 2px 4px 8px 0 rgba(207, 215, 230, 0.4);
@@ -22,7 +24,7 @@
 }
 
 body {
-    font-family: 'Nunito Sans', sans-serif !important;
+    font-family: 'Rubik', sans-serif !important;
     color: var(--text) !important;
 }
 
@@ -57,6 +59,15 @@ body {
 
 .btn-primary:active {
     background-color: var(--primary-light) !important;
+    transform: scale(0.98);
+}
+
+.btn:hover {
+
+    transform: scale(1.02);
+}
+
+.btn:active {
     transform: scale(0.98);
 }
 
@@ -160,8 +171,8 @@ body {
 }
 
 ::selection {
-    color: var(--text) !important;
-    background: var(--accent-2) !important;
+    color: #3ca5f9 !important;
+    background: #3ca4f918 !important;
 }
 
 select {
@@ -246,8 +257,8 @@ label {
 
 .card {
     border: 1px solid var(--accent-2);
-    border-radius: var(--radius) !important;
-    box-shadow: var(--shadow) !important;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
 }
 
 .ql-container.ql-snow {
@@ -289,4 +300,77 @@ svg:hover .ql-fill {
 pre {
     background-color: var(--accent-1) !important;
     color: var(--accent-8) !important;
+}
+
+.bg-dark {
+    background-color: var(--bg-dark) !important;
+    background-color: var(--bg-dark) ;
+opacity: 1;
+background-size: 100px 100px;
+background-image:  repeating-linear-gradient(to right, rgba(24, 24, 43, 0.46), rgba(24, 24, 43, 0.46) 2px, var(--bg-dark) 2px, var(--bg-dark));
+}
+
+.bg-dark-text {
+    color: #f6f6f8 !important;
+}
+
+.bg-dark-p {
+    color: #ddddf2 !important;
+}
+
+.btn-dark-primary {
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px !important;
+    color: var(--background) !important;
+    font-weight: 600 !important;
+    background-color: transparent !important;
+    background: linear-gradient(#2286d6, #2286d6);
+    border: none !important;
+    height: 40px;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    font-size: 14px !important;
+    transition: 250ms;
+}
+
+.btn-dark-secondary {
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px !important;
+    color: #77cee1 !important;
+    font-weight: 600 !important;
+    background-color: rgba(255, 255, 255, 0.062) !important;
+    border: none !important;
+    height: 40px;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    font-size: 14px !important;
+    transition: 250ms;
+}
+
+.midd {
+    margin: 0;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.bg-gradient-1 {
+    background: linear-gradient(-209.21deg, rgba(110, 131, 163, 0.17), #101f35);
+    border-radius: var(--radius);
+}
+
+.bg-gradient-2 {
+    background: linear-gradient(209.21deg, rgb(159, 127, 229) 13.57%, rgb(78, 153, 227) 98.38%);
+    border-radius: var(--radius);
+}
+
+.bg-gradient-3 {
+    background: linear-gradient(209.21deg, rgb(75, 190, 255) 13.57%, rgb(33, 107, 218) 98.38%);
+    border-radius: var(--radius);
+}
+.text-green{
+    color: #77cee1!important;
 }

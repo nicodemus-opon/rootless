@@ -1,23 +1,23 @@
+var jsonQuery = require('json-query')
 const express = require('express')
 const store = require('data-store')({ path: process.cwd() + '/store/.store.json' });
 const path = require('path');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
-var _fs = require("fs");
-const _utils = require("util");
+var fs = require("fs");
 const util = require("util");
 
-var multer   = require("multer");
-var pth=process.cwd() +'/public/uploads'
+var multer = require("multer");
+var pth = process.cwd() + '/public/uploads'
 var storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, pth );
-     },
+    destination: function (req, file, cb) {
+        cb(null, pth);
+    },
     filename: function (req, file, cb) {
-        cb(null , file.originalname);
+        cb(null, file.originalname);
     }
 });
-var upload   = multer({ storage: storage })
+var upload = multer({ storage: storage })
 
 require('custom-env').env("staging")
 var crypto = require('crypto');
@@ -37,7 +37,7 @@ app.use(express.json());
 app.use('/', router);
 app.use(express.static("public"));
 
-const port = process.env.PORT
+const port = process.env.PORT || 3000
 console.clear()
 
 
@@ -112,10 +112,19 @@ function log(x) {
 }
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname + '/public/index.html'));
+    res.sendFile(path.join(__dirname + '/public/welcome.html'));
 })
 app.get('/api', (req, res) => {
     res.send(message("success", "rootless server running", "200", "SERVER_OK"));
+})
+app.get('/files', (req, res) => {
+    var folder = "./public/uploads"
+    var ou = []
+    fs.readdirSync(folder).forEach(file => {
+        ou.push(file);
+    });
+    //console.log(ou); 
+    res.send(ou);
 })
 app.get('/dump', (req, res) => {
     if (auth(req.query._auth)) {
@@ -143,6 +152,7 @@ app.route('/api/:model')
         delete fquery._limit;
         delete fquery._start;
         delete fquery._search;
+        delete fquery._query;
 
         if (auth(mkey)) {
             if (Object.keys(fquery).length > 0) {
@@ -165,6 +175,13 @@ app.route('/api/:model')
                         response = finalr;
                     }
 
+                    if (req.query._query) {
+                        tempr = response
+                        response = jsonQuery(req.query._query, {
+                            data: tempr
+                        });
+                        response=response["value"]
+                    }
                     //limit pagination
                     if (req.query._limit) {
                         if (isNaN(req.query._limit)) {

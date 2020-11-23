@@ -50,7 +50,11 @@
     "config": {
         "app": "rootless",
         "favicon": "favicon/url/fav.png",
-        "theme": "vanilla",
-        "cors":true
+        "theme": "vanilla"
+        
+    },
+    "server":{
+        "cors":true,
+        "port":3000
     }
 }
