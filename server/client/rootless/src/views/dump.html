@@ -1,0 +1,76 @@
+<div class="col" id="sidebar">
+    <div class="pt-4 pb-2">
+      <a href="" class="hh">
+        <div class="card p-3 ">
+          <div class="row">
+            <div class="col-2">
+              <img
+                src="@/assets/img/profile.png"
+                class="prof-img rounded-circle mt-2"
+              />
+            </div>
+            <div class="col-10">
+              <span class="user-name mx-2 text">{{truncate('nicodemus',16)}}</span>
+              <br>
+              <span class="user-name mx-2 text-muted">{{truncate('nicodemusopon@gmail.com',16)}}</span>
+            </div>
+          </div>
+          
+        </div>
+      </a>
+    </div>
+    <hr />
+    <ul class="nav flex-column pt-2">
+      <li class="nav-item">
+        <a
+          class="nav-link nav-dash "
+          :class="{ active: $route.name === 'Collection' }"
+          data-toggle="collapse"
+          data-target="#collections-dropdown"
+          ><i class="ci-layers_alt mr-1 align-middle "></i>Collections</a
+        >
+        <ul class="nav flex-column collapse " id="collections-dropdown">
+          <li class="nav-item" v-for="model in models" :key="model">
+            <router-link
+              class="nav-link nav-dash ml-2 text-muted"
+              :class="{ lactive: $route.params.slug === model }"
+              :to="'/app/collection/' + model"
+            >
+              <span v-html="emojize(model)"></span>
+
+              {{ model }}
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-dash ml-2" href="#/app/new/collection"
+              ><i class="ci-plus mr-1 align-middle "></i> Add Collection</a
+            >
+          </li>
+        </ul>
+      </li>
+      <li class="nav-item">
+        <router-link
+          class="nav-link nav-dash "
+          :class="{ active: $route.name === 'Storage' }"
+          :to="'/app/storage/'"
+        >
+          <i class="ci-folder mr-1 align-middle "></i> Storage
+        </router-link>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link nav-dash " href="#/"
+          ><i class="ci-user mr-1 align-middle "></i>Authentication</a
+        >
+      </li>
+      <li class="nav-item">
+        <a class="nav-link nav-dash " href="#/"
+          ><i class="ci-bulb mr-1 align-middle "></i>Functions</a
+        >
+      </li>
+      <li class="nav-item">
+        <a class="nav-link nav-dash " href="#/"
+          ><i class="ci-settings_future mr-1 align-middle "></i>Server</a
+        >
+      </li>
+    </ul>
+  </div>

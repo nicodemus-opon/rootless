@@ -6,25 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <title>Rootless</title>
-    <link
-        href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
-        rel="stylesheet">
+
+    <link href="assets/tp/filepond.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/base.css">
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/main2.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/icons/coolicons.css">
+    <link rel="stylesheet" href="assets/tp/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="assets/tp/filepond-plugin-image-edit.min.css">
+
 </head>
 
-<body>
+<body class="lightb">
     <div class="container-fluid full-height">
 
         <div class="row full-height">
             <div class="col" id="sidebar">
                 <ul class="nav flex-column pt-5">
                     <li class="nav-item">
-                        <a class="nav-link nav-dash active nvd" href="#/discover"><i class="ht-14 mr-1 align-middle "
-                                data-feather="compass"></i>Explore</a>
+                        <a class="nav-link nav-dash active nvd" href="#/discover"><i
+                                class="ci-home_outline mr-1 align-middle "></i>Explore</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link nav-dash nva" href="#/applications"><i
@@ -41,13 +44,12 @@
                     </li>
                 </ul>
             </div>
-            <div class="col pb-5" id="mainarea">
-                <div class="pt-4 px-4 position-fixed bg-bg pb-2 top-top">
+            <div class="col pl-0  pb-5" id="mainarea">
+                <div class="pt-2 px-4 mx-0 position-fixed bg-bg pb-2 top-top">
                     <!--span class="py-0 my-0 title-nv float-right align-middlen">
                         <i class="material-icons-two-tone red btn-nv align-middlem">account_circle</i>
                     </span-->
-                    <button class="btn btn-primary my-0 title-nv float-right">
-                        Save</button>
+
                     <div class="d-inline-flex align-bottom pt-2">
                         <nav aria-label="breadcrumb align-bottom">
                             <ol class="breadcrumb align-bottom my-0 ">
@@ -81,22 +83,17 @@
                             </div>
                             <div class="form-group">
                                 <label>Rich Text</label>
-                                <div class="card p-2">
-                                    <div id="editor">
 
-                                    </div>
+                                <div id="editor">
+
                                 </div>
+
 
                             </div>
 
                             <div class="form-group">
                                 <label class="py-2">File Input</label>
-                                <div class="custom-file mb-3">
-
-                                    <input type="file" class="custom-file-input form-control" id="validatedCustomFile"
-                                        required>
-                                    <label class="custom-file-label">Choose file...</label>
-                                </div>
+                                <input type="file" class="my-pond" name="filepond" />
                             </div>
                             <div class="form-group">
                                 <label>Slider</label>
@@ -111,6 +108,8 @@
                             </div>
                             <div class="pt-2">
 
+                                <button class="btn btn-primary ">
+                                    Save</button>
 
                             </div>
                         </div>
@@ -128,6 +127,9 @@
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <!-- Initialize Quill editor -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/main.js"></script>
     <script>
         var toolbarOptions = [
             ['bold', 'italic', 'underline', 'strike'], // toggled buttons
@@ -148,9 +150,9 @@
             }, {
                 'script': 'super'
             }], // superscript/subscript
-            
 
-            
+            ['link', 'image', 'video', 'formula'],
+
             [{
                 'header': [1, 2, 3, 4, 5, 6, false]
             }],
@@ -165,13 +167,68 @@
                 'align': []
             }]
 
-           
+
         ];
         var quill = new Quill('#editor', {
             theme: 'snow',
             modules: {
                 toolbar: toolbarOptions
             }
+        });
+    </script>
+    <!-- include FilePond library -->
+    <script src="assets/tp/filepond.min.js"></script>
+    <script src="assets/tp/filepond-plugin-image-preview.min.js"></script>
+    <script src="assets/tp/filepond-plugin-image-edit.min.js"></script>
+
+    <script src="assets/js/jquery-filepond.js"></script>
+
+
+    <!-- include FilePond plugins 
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+
+    
+    <script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>
+-->
+    <script>
+        $(function () {
+
+            // First register any plugins
+            $.fn.filepond.registerPlugin(
+                FilePondPluginImagePreview
+            );
+
+
+            // Turn input element into a pond
+            $('.my-pond').filepond({
+                server: {
+                    url: './_uploads',
+                    process: {
+                        onload: (res) => {
+                            // select the right value in the response here and return
+                            console.log(res)
+                            return res;
+                        }
+                    }
+                }
+            });
+
+            // Set allowMultiple property to true
+            $('.my-pond').filepond('allowMultiple', true);
+
+            // Listen for addfile event
+            $('.my-pond').on('FilePond:addfile', function (e) {
+                console.log('file added event', e);
+            });
+
+            // Manually add a file using the addfile method
+            /*
+            $('.my-pond').first().filepond('addFile',
+                'http://localhost:3000/d/550b6a1c-3a27-4a95-9e13-82aa3248b44b').then(function (file) {
+                console.log('file added', file);
+            });
+            */
+
         });
     </script>
 </body>

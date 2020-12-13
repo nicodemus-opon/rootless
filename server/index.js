@@ -1,11 +1,17 @@
 var jsonQuery = require('json-query')
 const express = require('express')
 const store = require('data-store')({ path: process.cwd() + '/store/.store.json' });
+const server_config = require('data-store')({ path: process.cwd() + '/store/.server.json' });
 const path = require('path');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 var fs = require("fs");
 const util = require("util");
+var session = require('express-session')
+var companion = require('@uppy/companion')
+
+
+server_config.set("port",3000)
 
 var multer = require("multer");
 var pth = process.cwd() + '/public/uploads'
@@ -21,17 +27,24 @@ var upload = multer({ storage: storage })
 
 require('custom-env').env("staging")
 var crypto = require('crypto');
+const { timeStamp } = require('console');
 
 // Encryption 
 const algorithm = process.env.ENCRYPTION_ALGORITHM;
 const key = process.env.ENCRYPTION_KEY;
 const iv = process.env.ENCRYPTION_IV;
-var authKey = process.env.APIKEY;
+const authKey = process.env.APIKEY || "key";
 
 const app = express()
 const router = express.Router();
 
-app.use(cors());
+app.use(session({ secret: key }))
+app.use(cors({
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    "preflightContinue": false,
+    "optionsSuccessStatus": 204
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/', router);
@@ -39,7 +52,25 @@ app.use(express.static("public"));
 
 const port = process.env.PORT || 3000
 console.clear()
+const options = {
+    providerOptions: {
+        drive: {
+            key: 'GOOGLE_DRIVE_KEY',
+            secret: 'GOOGLE_DRIVE_SECRET'
+        }
+    },
+    server: {
+        host: 'localhost:3000/',
+        protocol: 'http',
 
+    },
+    secret: key,
+    filePath: process.cwd() + '/public/uploads',
+    sendSelfEndpoint: "localhost:3000",
+
+}
+
+app.use(companion.app(options))
 
 function encrypt(text) {
     var cipher = crypto.createCipheriv(algorithm, key, iv);
@@ -106,25 +137,41 @@ function oupdate(obj/*, …*/) {
     }
     return obj;
 }
-function log(x) {
-    console.clear();
-    console.log(x);
+
+function timestamp() {
+    var dt = new Date();
+    return (dt.toISOString())
 }
 
+function log(x, comment) {
+    var activity = {
+        "_id": uuidv4(),
+        "ip": x.ip,
+        "url": x.originalUrl,
+        "method": x.method,
+        "_timestamp": timestamp(),
+        "comment": comment || ""
+    }
+    store.union("_logs", activity);
+    console.log(activity);
+}
+
+app.all('*', function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    if (req.method == 'OPTIONS') {
+        res.send(200);
+    } else {
+        next();
+    }
+});
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname + '/public/welcome.html'));
+    res.sendFile(path.join(__dirname + '/public/indexb.html'));
 })
 app.get('/api', (req, res) => {
     res.send(message("success", "rootless server running", "200", "SERVER_OK"));
-})
-app.get('/files', (req, res) => {
-    var folder = "./public/uploads"
-    var ou = []
-    fs.readdirSync(folder).forEach(file => {
-        ou.push(file);
-    });
-    //console.log(ou); 
-    res.send(ou);
 })
 app.get('/dump', (req, res) => {
     if (auth(req.query._auth)) {
@@ -133,15 +180,26 @@ app.get('/dump', (req, res) => {
         res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
     }
 })
-app.get('/model', (req, res) => {
-    if (auth(req.query._auth)) {
-        res.send(Object.keys(store.data));
-    } else {
+app.get('/collections', cors(), (req, res) => {
+    if (!auth(req.query._auth)) {
         res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
+        return 0;
     }
+    log(req);
+    res.send(Object.keys(store.data));
+})
+app.get('/logs', cors(), (req, res) => {
+    if (!auth(req.query._auth)) {
+        res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
+        return 0;
+    }
+    log(req);
+    store.set("_logs", store.get("_logs").slice(0).slice(-5));
+    
+    res.send(store.get("_logs"));
 })
 //i.e /api/product
-app.route('/api/:model')
+app.route('/api/:model', cors())
     .get(function (req, res) {
         var mkey = req.query._auth
         var model = req.params.model;
@@ -153,6 +211,7 @@ app.route('/api/:model')
         delete fquery._start;
         delete fquery._search;
         delete fquery._query;
+        log(req);
 
         if (auth(mkey)) {
             if (Object.keys(fquery).length > 0) {
@@ -180,7 +239,7 @@ app.route('/api/:model')
                         response = jsonQuery(req.query._query, {
                             data: tempr
                         });
-                        response=response["value"]
+                        response = response["value"]
                     }
                     //limit pagination
                     if (req.query._limit) {
@@ -207,10 +266,12 @@ app.route('/api/:model')
         }
     })
     .post(function (req, res) {
+        log(req);
         var model = req.params.model;
         var body = req.body;
         for (let i = 0; i < body.length; i++) {
-            body[i]._id = uuidv4()
+            body[i]._id = uuidv4();
+            body[i]._timestamp = timestamp();
         }
 
         //var bodyj = JSON.stringify(body);
@@ -218,6 +279,7 @@ app.route('/api/:model')
         res.send(message("success", "data added successfully", "201", "OK"));
     })
     .delete(function (req, res) {
+        log(req);
         if (auth(req.query._auth)) {
             var model = req.params.model;
             var affected = 0
@@ -238,6 +300,7 @@ app.route('/api/:model')
 
     })
     .put(function (req, res) {
+        log(req);
         if (auth(req.query._auth)) {
             var model = req.params.model;
             //var body = req.body;
@@ -257,13 +320,48 @@ app.route('/api/:model')
         }
     })
 
-app.post("/files", upload.any(), function (req, res) {
+app.post("/_uploads", upload.any(), function (req, res) {
     var files = req.files;
+    var rfiles = []
     if (files) {
-        res.send(req.files);
+        for (let i = 0; i < files.length; i++) {
+            tfiles = { ...files[i] }
+            tfiles._id = uuidv4();
+            tfiles._url = req.headers.host + "/d/" + tfiles._id
+            store.union("_uploads", tfiles);
+            rfiles.push(tfiles);
+
+        }
+        res.send(rfiles);
     }
 });
-
-app.listen(port, () => {
+app.get('/_uploads', (req, res) => {
+    var folder = "./public/uploads"
+    var ou = []
+    fs.readdirSync(folder).forEach(file => {
+        var fd = folder + "/" + file
+        stats = fs.statSync(fd)
+        var tmpf = { filename: file, stats: stats }
+        ou.push(tmpf);
+    });
+    //console.log(ou); 
+    res.send(ou);
+})
+app.get('/d/:_id', cors(), (req, res) => {
+    var flt = jsonQuery(`[_id=${req.params._id}].filename`, {
+        data: store.get("_uploads")
+    })["value"];
+    if (flt) {
+        var filen = '/public/uploads/' + flt;
+        res.sendFile(path.join(__dirname + filen));
+    } else {
+        res.send(message("error", "No such file", "404", "FILE_NOT_FOUND"))
+    }
+})
+app.get('*', function (req, res) {
+    res.send(message("error", "No such file/path", "404", "PATH_NOT_FOUND"));
+});
+var server = app.listen(port, () => {
     console.log(`Rootless 🌲 listening at http://localhost:${port}`)
 })
+companion.socket(server, options)

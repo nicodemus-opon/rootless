@@ -1,44 +1,48 @@
 {
-    "model": {
-        "user": {
-            "name": {
-                "type": "text"
-            },
-            "avatar": {
-                "type": "text"
-            },
-            "account": {
-                "type": "select",
-                "options": [
-                    "op1",
-                    "op2",
-                    "op3"
-                ]
-            },
-            "profile": {
-                "type": "richText"
+    "model": [
+        {
+            "user": {
+                "field1": {
+                    "type": "text"
+                },
+                "field2": {
+                    "type": "text"
+                },
+                "account": {
+                    "type": "select",
+                    "options": [
+                        "op1",
+                        "op2",
+                        "op3"
+                    ]
+                },
+                "profile": {
+                    "type": "richText"
+                }
             }
         },
-        "profile": {
-            "name": {
-                "type": "text"
-            },
-            "avatar": {
-                "type": "text"
-            },
-            "account": {
-                "type": "select",
-                "options": [
-                    "op1",
-                    "op2",
-                    "op3"
-                ]
-            },
+        {
             "profile": {
-                "type": "richText"
+                "name": {
+                    "type": "text"
+                },
+                "avatar": {
+                    "type": "text"
+                },
+                "account": {
+                    "type": "select",
+                    "options": [
+                        "op1",
+                        "op2",
+                        "op3"
+                    ]
+                },
+                "profile": {
+                    "type": "richText"
+                }
             }
         }
-    },
+    ],
     "auth": {
         "users": {
             "username": "nico",
@@ -51,10 +55,9 @@
         "app": "rootless",
         "favicon": "favicon/url/fav.png",
         "theme": "vanilla"
-        
     },
-    "server":{
-        "cors":true,
-        "port":3000
+    "server": {
+        "cors": true,
+        "port": 3000
     }
 }
