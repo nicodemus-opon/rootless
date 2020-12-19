@@ -27,6 +27,7 @@
     "custom-env": "^2.0.1",
     "data-store": "^4.0.3",
     "express": "^4.17.1",
+    "express-ping": "^1.4.0",
     "express-session": "^1.17.1",
     "jquery": "^3.5.1",
     "json-query": "^2.2.2",

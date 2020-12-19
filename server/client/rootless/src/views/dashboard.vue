@@ -1,9 +1,13 @@
 <template>
   <div class="container-fluidb full-height  ">
-    <nav class="navbar navbar-expand-lg position-fixed  ">
-      <div class="container">
+    <nav
+      class="navbar navbar-expand-lg position-fixed "
+      :class="{ 'full-height': navtoggled }"
+    >
+      <div class="container px-3">
         <button
-          class="navbar-toggler navbar-toggler-right align-self-center my-2"
+          class="navbar-toggler navbar-toggler-right align-self-center my-2 fixed-topb"
+          :class="{ 'fixed-top mx-3 my-4': navtoggled }"
           type="button"
           data-toggle="collapse"
           data-target="#navbarCollapse"
@@ -16,16 +20,19 @@
             <i class="ci-close_big" v-show="navtoggled"></i>
           </span>
         </button>
-        <h1 class="pb-2 ml-lg-2 mx-3">
-          <a href="#"
-            ><i class="fa fa-envelope-o fa-lg mt-2" aria-hidden="true"></i
-          ></a>
-        </h1>
+        
         <div
-          class="collapse navbar-collapse flex-column ml-lg-0 ml-3"
+          class="collapse navbar-collapse  flex-column ml-lg-0 ml-3"
           id="navbarCollapse"
         >
-          <ul class="navbar-nav ml-auto">
+          <ul class="navbar-nav ml-auton pb-2" style="width:100%">
+            <li class="nav-item pt-2 mr-auto text-right">
+              <a class="nav-link logo-text text" href="#"><img
+                  src="rootless.svg"
+                  class="prof-imgn rounded-circlen "
+                  height="28px"
+              /> ROOTLESS <span class="text-muted">- Acme Corp</span></a>
+            </li>
             <li class="nav-item pt-2 ">
               <a class="nav-link" href="#">
                 <i class="ci-external_link"></i> Docs</a
@@ -55,7 +62,15 @@
               </div>
             </li>
           </ul>
-          <ul class="navbar-nav tabs mr-auto">
+          <ul class="navbar-nav tabs mr-auto px-0 mx-0">
+            <li
+              class="nav-item mx-2"
+              :class="{ active: $route.name === 'Overview' }"
+            >
+              <router-link class="nav-link " :to="'/app/overview/'">
+                <i class="ci-dashboard_02 mr-1 align-middle "></i> Overview
+              </router-link>
+            </li>
             <li
               class="nav-item mx-2 "
               :class="{ active: $route.name === 'Collection' }"
@@ -80,24 +95,39 @@
                 ><i class="ci-user mr-1 align-middle "></i>Users</a
               >
             </li>
-            <li class="nav-item mx-2"  :class="{ active: $route.name === 'Server' }">
-              <router-link class="nav-link " :to="'/app/server/'">
-                <i class="ci-data mr-1 align-middle "></i> Server
+            <li
+              class="nav-item mx-2"
+              :class="{ active: $route.name === 'Settings' }"
+            >
+              <router-link class="nav-link " :to="'/app/settings/'">
+                <i class="ci-settings mr-1 align-middle "></i> Settings
               </router-link>
-              
             </li>
-            <li class="nav-item mx-2">
-              <a class="nav-link" href="#"
-                ><i class="ci-settings mr-1 align-middle "></i>Settings</a
-              >
+            <li
+              class="nav-item mx-2"
+              :class="{ active: $route.name === 'Logs' }"
+            >
+              <router-link class="nav-link " :to="'/app/logs/'">
+                <i class="ci-data mr-1 align-middle "></i> Logs
+              </router-link>
+            </li>
+            
+            <li
+              class="nav-item mx-2"
+              :class="{ active: $route.name === 'Playground' }"
+            >
+              <router-link class="nav-link " :to="'/app/logs/'">
+                <i class="ci-color mr-1 align-middle "></i> Plugins
+              </router-link>
             </li>
           </ul>
-          <ul class="nav collapse mr-auto" id="collections-dropdown">
+          <ul class="nav collapse mr-auto pt-3" id="collections-dropdown">
             <li class="nav-item" v-for="model in models" :key="model">
               <router-link
                 class="nav-link ml-2 "
                 :class="{ lactive: $route.params.slug === model }"
                 :to="'/app/collection/' + model"
+                v-show="model.substring(0, 1) != '_'"
               >
                 <span v-html="emojize(model)"></span>
 
@@ -113,7 +143,7 @@
         </div>
       </div>
     </nav>
-    <div class=" full-height pt-4">
+    <div class=" full-height pt-4 ">
       <div class="container pb-5 mt-5">
         <div class="row justify-content-center pt-5 px-3 ">
           <router-view :key="$route.fullPath"></router-view>

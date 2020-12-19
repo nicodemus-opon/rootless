@@ -1,49 +1,51 @@
 <template>
-  <div class="col-8 pt-5">
-    <div class="form-group">
-      <label> <i class="ci-layers"></i> Collection Name *</label>
-      <input type="text" class="form-control" />
+  <div class="col-12">
+    <div class="row py-4">
+      <div class="col-12 ">
+        <h2>Add collection</h2>
+        <p>create a new table/collection</p>
+      </div>
     </div>
-    <div class="dynamict py-2">
-      <div class="row">
-        <div class="col-12">
-          <div class="card-bordered p-4">
-            <label> <i class="ci-code"></i> Schema.json</label>
-            <MonacoEditor
-              theme="vs-dark"
-              class="editor"
-              v-model="code"
-              language="json"
-            />
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="row">
+          <div class=" my-2 col-12">
+            <label> <i class="ci-layers"></i> Collection Name *</label>
+            <input type="text" class="form-control" />
+          </div>
+        </div>
+
+        <div class="row drag-contb px-2b py-4">
+          <div class="col-12">
+            <div class="card-bordered p-4">
+              <i class="ci-menu_duo btn-icon align-middle"></i>
+              <i class="ci-edit btn-icon align-middle text-right ml-auto"></i>
+              <span> User</span>
+            </div>
+          </div>
+          <div class="col-12 pt-5">
+            <button class="btn btn-secondary mr-2">Add Field</button>
           </div>
         </div>
       </div>
-    </div>
-    <div class="add-cont pt-4">
-      <button class="btn btn-primary mr-2">Create Collection</button>
+      <div class="col-lg-6">
+        <div class="form-group">
+          <label> <i class="ci-layers"></i> Collection Name *</label>
+          <input type="text" class="form-control" />
+        </div>
+
+        <div class="add-cont pt-4">
+          <button class="btn btn-primary mr-2">Save Changes</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import MonacoEditor from "vue-monaco";
-
 export default {
-  components: {
-    MonacoEditor
-  },
-
   data() {
-    return {
-      code: `{
-            "field1": {
-                "type": "text"
-            },
-            "field2": {
-                "type": "text"
-            }
-}`
-    };
+    return {};
   }
 };
 </script>

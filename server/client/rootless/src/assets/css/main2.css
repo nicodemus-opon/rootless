@@ -1,7 +1,7 @@
 :root {
-    --primary: #1ed760;
-    --primary-dark: #17a348;
-    --primary-dark-alt: #1bc155;
+    --primary: #ff3366;
+    --primary-dark: #e81e61;
+    --primary-dark-alt: #e81e61;
     --radius: 5px;
 
     --danger: #eb1f33;
@@ -123,7 +123,10 @@ small,
     top: 0;
     box-shadow: none;
 }
-
+.btn-lg{
+    height: 50px !important;
+    font-size: 14px !important;
+}
 .btn:hover {
     text-decoration: none;
 }
@@ -135,7 +138,7 @@ small,
 
 .btn-primary {
     background: var(--primary) !important;
-    color: var(--background) !important;
+    color: white !important;
 
 }
 
@@ -211,7 +214,7 @@ pre {
     border: 1px solid var(--accent-2);
     background-color: transparent !important;
     padding: 10px;
-    color: var(--accent-4) !important;
+    color: var(--foreground)!important;
     border-radius: var(--radius);
     min-height: 40px;
 }
@@ -232,7 +235,7 @@ pre {
     box-shadow: none !important;
     padding: 0px;
     padding-right: 10px;
-    color: var(--accent-4) !important;
+    color: var(--foreground) !important;
 
 }
 
@@ -405,6 +408,7 @@ hr {
 
 }
 
+
 .dropdown-item {
     color: var(--accent-5);
 
@@ -476,6 +480,7 @@ hr {
     color: var(--primary) !important;
     /* border-left: 2px solid var(--primary);*/
     border: 1px solid var(--accent-2);
+
     font-weight: 600;
 }
 
@@ -634,6 +639,10 @@ select.form-control {
     justify-content: left;
 }
 
+.dataTables_info {
+    color: var(--accent-4);
+}
+
 .icon-larger {
     font-size: 18px;
 }
@@ -711,18 +720,26 @@ th:focus {
     padding-bottom: 0px;
 }
 
+.tabs>li>a {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    margin-right: 5px;
+}
+
 .tabs>li {
+    margin-bottom: -1px;
     border-bottom: 2px solid transparent !important;
+    transition: all 200ms ease 0s;
 }
 
 .tabs>li.active {
     border-bottom: 2px solid var(--primary) !important;
     color: var(--foreground) !important;
-
+   
 }
 
 .tabs>li.active>a {
-    color: var(--primary) !important;
+    color: var(--foreground) !important;
 }
 
 .bg-accent-1 {
@@ -938,4 +955,74 @@ button:focus {
 
 .text-accent-6 {
     color: var(--accent-6) !important;
+}
+
+.vl {
+    border-left: 5px solid var(--accent-2);
+    height: 20px;
+    width: 10px;
+}
+@media (max-width: 992px) {
+    .navbar-collapse {
+        position: fixed;
+        top: 50px; /* adjust to height of navbar */
+        left: 0;
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-bottom: 15px;
+        width: 75%;
+        height: 100%;
+    }
+
+    .navbar-collapse.collapsing {
+        left: -75%;
+        transition: height 0s ease;
+    }
+
+    .navbar-collapse.show {
+        left: 0;
+        transition: left 300ms ease-in-out;
+    }
+
+    .navbar-toggler.collapsed ~ .navbar-collapse {
+        transition: left 500ms ease-in-out;
+    }
+}
+.logo-text{
+    font-family: 'Inter' !important;
+    font-weight: 500;
+}
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+    color: var(--foreground);
+    background-color: var(--accent-1);
+}
+.drag-cont{
+    border-radius: var(--radius);
+    border: 2px dotted var(--accent-2);
+}
+/* Change the white to any color ;) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active  {
+    -webkit-box-shadow: 0 0 0 30px var(--accent-1) inset !important;
+    box-shadow: 0 0 0 30px var(--accent-1) inset !important;
+}
+/*Change text in autofill textbox*/
+input:-webkit-autofill {
+    -webkit-text-fill-color: var(--foreground) !important;
+    transition: color 5000s ease-in-out 0s;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+}
+.image{
+    box-shadow: inset 0 0 0 5000px var(--navbar-background);
+    background-size:100% !important;
+    background-position: center;
+    background-repeat: no-repeat !important;
+    backdrop-filter: blur(20px);
 }

@@ -14,7 +14,7 @@
           data-toggle="modal"
           data-target="#exampleModal"
         >
-          <i class="ci-file_new"></i> Add Files
+          <i class="ci-cloud_up"></i> Upload
         </button>
       </div>
     </div>
@@ -158,7 +158,7 @@ export default {
     this.$http.get(baseURI).then(result => {
       this.files = result.data.reverse();
       //this.keys = Object.keys(this.res[0]);
-      console.log(this.files);
+      //console.log(this.files);
     });
   },
   methods: {

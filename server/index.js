@@ -1,4 +1,5 @@
 var jsonQuery = require('json-query')
+var health = require('express-ping');
 const express = require('express')
 const store = require('data-store')({ path: process.cwd() + '/store/.store.json' });
 const server_config = require('data-store')({ path: process.cwd() + '/store/.server.json' });
@@ -11,7 +12,7 @@ var session = require('express-session')
 var companion = require('@uppy/companion')
 
 
-server_config.set("port",3000)
+server_config.set("port", 3000)
 
 var multer = require("multer");
 var pth = process.cwd() + '/public/uploads'
@@ -45,6 +46,7 @@ app.use(cors({
     "preflightContinue": false,
     "optionsSuccessStatus": 204
 }));
+app.use(health.ping());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/', router);
@@ -143,14 +145,15 @@ function timestamp() {
     return (dt.toISOString())
 }
 
-function log(x, comment) {
+function log(x, comment,meta) {
     var activity = {
         "_id": uuidv4(),
         "ip": x.ip,
         "url": x.originalUrl,
         "method": x.method,
         "_timestamp": timestamp(),
-        "comment": comment || ""
+        "comment": comment || "",
+        "meta": meta || {}
     }
     store.union("_logs", activity);
     console.log(activity);
@@ -188,16 +191,59 @@ app.get('/collections', cors(), (req, res) => {
     log(req);
     res.send(Object.keys(store.data));
 })
+app.get('/brief', (req, res) => {
+    if (!auth(req.query._auth)) {
+        res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
+        return 0;
+    }
+    log(req);
+    res.send(Object.keys(store.data));
+})
 app.get('/logs', cors(), (req, res) => {
     if (!auth(req.query._auth)) {
         res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
         return 0;
     }
     log(req);
-    store.set("_logs", store.get("_logs").slice(0).slice(-5));
-    
+    store.set("_logs", store.get("_logs").slice(0).slice(-20));
+
     res.send(store.get("_logs"));
 })
+app.route('/plugin/:plugin/:method')
+    .get(function (req, res) {
+        if (!auth(req.query._auth)) {
+            res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
+            return 0;
+        }
+        log(req);
+        var plugin = req.params.plugin;
+        console.log(plugin)
+        var method = req.params.method;
+        var p = require("./plugins/" + plugin);
+        p[method](req, res);
+    })
+
+app.route('/auth')
+    .get(function (req, res) {
+        res.send(message("success", "auth works", "200", "OK"))
+    })
+    .post(function (req, res) {
+        res.send(message("success", "auth works", "200", "OK"))
+    })
+app.route('/auth/register')
+    .get(function (req, res) {
+        res.send(message("success", "auth works", "200", "OK"))
+    })
+    .post(function (req, res) {
+        log(req);
+        var model = req.params.model;
+        var body = req.body;
+        for (let i = 0; i < body.length; i++) {
+            body[i]._id = uuidv4();
+            body[i].created = timestamp();
+        }
+        res.send(message("success", "auth works", "200", "OK"))
+    })
 //i.e /api/product
 app.route('/api/:model', cors())
     .get(function (req, res) {

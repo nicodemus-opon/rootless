@@ -1,50 +1,52 @@
 <template>
-  <div class="col-12 pt-5">
-    <div class=" p-2">
-      <div class="py-2 row">
-        <div class="col">
-          <div class="btn-group" role="group" aria-label="Basic example">
-            <button type="button" class="btn btn-secondary">
-              <i class="ci-plus_circle mr-1 align-middle "></i>Add
-              {{ singular(this.$route.params.slug) }}
-            </button>
-            <button type="button" class="btn btn-secondary">
-              <i class="ci-edit mr-1 align-middle "></i>Edit Collection
-            </button>
-            <button type="button" class="btn btn-secondary">
-              <i class="ci-trash_full mr-1 align-middle"></i>Delete Collection
-            </button>
-          </div>
-           
-        </div>
-        <div class="col">
-          <input placeholder="search..." type="text" class="form-control" />
-        </div>
+  <div class="col-12 pt-1b">
+    <div class="row py-4">
+      <div class="col-12 ">
+        <h2>{{ $route.params.slug }}</h2>
+        <p>
+          <i class="ci-layers mr-1 align-middle "></i>36 records
+          <i class="ci-clock ml-1 align-middle "></i> Last Modified 12 october
+          2020 15:30
+        </p>
       </div>
-      <div class="py-2">
-        <table class="table datat pt-2  pr-2 " id="myTable">
-          <thead>
-            <tr>
-              <th v-for="k in keys" :key="k" scope="col">{{ k }}</th>
-              <th><i class="ci-more_vertical mr-1 align-middle btn-icon"></i></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="r in res" :key="r._id">
-              <td v-for="x in r" :key="x + Math.random()">
-                <router-link
-                  class="text-accent-6"
-                  :to="
-                    '/app/collection/edit/' + $route.params.slug + '/' + r._id
-                  "
-                >
-                  {{ truncate(x.toString(), 24) }}
-                </router-link>
-              </td>
-              <td><i class="ci-more_vertical mr-1 align-middle btn-icon"></i></td>
-            </tr>
-          </tbody>
-        </table>
+    </div>
+    <div class="row py-2">
+      <div class="col-12">
+        
+        <div class="py-2 row">
+          <div class="col-12 table-responsive">
+            <table class="table datat pt-2  pr-2 " id="myTable">
+              <thead>
+                <tr>
+                  <th v-for="k in keys" :key="k" scope="col">{{ k }}</th>
+                  <th>
+                    <i class="ci-more_vertical mr-1 align-middle btn-icon"></i>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="r in res" :key="r._id">
+                  <td v-for="x in r" :key="x + Math.random()">
+                    <router-link
+                      class="text-accent-6"
+                      :to="
+                        '/app/collection/edit/' +
+                          $route.params.slug +
+                          '/' +
+                          r._id
+                      "
+                    >
+                      {{ truncate(x.toString(), 24) }}
+                    </router-link>
+                  </td>
+                  <td>
+                    <i class="ci-more_vertical mr-1 align-middle btn-icon"></i>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -78,7 +80,7 @@ export default {
       console.log(this.res);
 
       setTimeout(function() {
-        $(".datatn").DataTable();
+        $(".datat").DataTable();
       }, 500);
     });
   },
