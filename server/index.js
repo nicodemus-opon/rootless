@@ -5,12 +5,14 @@ const store = require('data-store')({ path: process.cwd() + '/store/.store.json'
 const server_config = require('data-store')({ path: process.cwd() + '/store/.server.json' });
 const path = require('path');
 const cors = require('cors');
+const helmet = require("helmet");
 const { v4: uuidv4 } = require('uuid');
 var fs = require("fs");
-const util = require("util");
 var session = require('express-session')
 var companion = require('@uppy/companion')
-
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt")
+const email_regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 server_config.set("port", 3000)
 
@@ -28,7 +30,6 @@ var upload = multer({ storage: storage })
 
 require('custom-env').env("staging")
 var crypto = require('crypto');
-const { timeStamp } = require('console');
 
 // Encryption 
 const algorithm = process.env.ENCRYPTION_ALGORITHM;
@@ -51,6 +52,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/', router);
 app.use(express.static("public"));
+app.use(helmet());
 
 const port = process.env.PORT || 3000
 console.clear()
@@ -90,7 +92,12 @@ function message(resp, message, code, status) {
     mresponse[resp] = { "message": message, "code": code, "status": status };
     return mresponse;
 }
-
+function loginRequired(req, res, next) {
+    if (!auth(req.query._auth)) {
+        return res.send(message("error", "Unable to authenticate", "401", "UNAUTHORIZED"));
+    }
+    next();
+}
 function auth(mykey) {
 
     if (mykey == authKey) {
@@ -145,7 +152,7 @@ function timestamp() {
     return (dt.toISOString())
 }
 
-function log(x, comment,meta) {
+function log(x, comment, meta) {
     var activity = {
         "_id": uuidv4(),
         "ip": x.ip,
@@ -157,6 +164,9 @@ function log(x, comment,meta) {
     }
     store.union("_logs", activity);
     console.log(activity);
+}
+function generateAccessToken(uid) {
+    return jwt.sign({ uid }, key, { "expiresIn": '1h' });
 }
 
 app.all('*', function (req, res, next) {
@@ -183,11 +193,7 @@ app.get('/dump', (req, res) => {
         res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
     }
 })
-app.get('/collections', cors(), (req, res) => {
-    if (!auth(req.query._auth)) {
-        res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
-        return 0;
-    }
+app.get('/collections', loginRequired, (req, res, next) => {
     log(req);
     res.send(Object.keys(store.data));
 })
@@ -231,22 +237,72 @@ app.route('/auth')
         res.send(message("success", "auth works", "200", "OK"))
     })
 app.route('/auth/register')
-    .get(function (req, res) {
-        res.send(message("success", "auth works", "200", "OK"))
-    })
     .post(function (req, res) {
         log(req);
         var model = req.params.model;
         var body = req.body;
         for (let i = 0; i < body.length; i++) {
+            if (!body[i].email || !body[i].password) {
+                res.send(message("error", "missing email or password", "400", "MISSING_PARAMETER"))
+                return 0
+            }
+            if (!email_regex.test(body[i].email)) {
+                res.send(message("error", "invalid email format", "400", "INVALID_EMAIL"))
+                return 0
+            }
+            if (body[i].password.length < 6) {
+                res.send(message("error", "password must be at least 6 characters long", "400", "SHORT_PASSWORD"))
+                return 0
+            }
+            var emq = '_users[*email=' + body[i].email + ']'
+            var match = jsonQuery(emq, {
+                data: store.data
+            }).value;
+
+            if (match[0]) {
+                res.send(message("error", "a user already exists with the provided email address", "400", "USER_EXISTS"))
+                return 0
+            }
+
             body[i]._id = uuidv4();
-            body[i].created = timestamp();
+            body[i].createdAt = timestamp();
+            body[i].apiKey = uuidv4().toUpperCase();
+            body[i].password = bcrypt.hashSync(body[i].password, 10);
+            body[i].emailVerified = false;
+            body[i].photoURL = null;
+            body[i].phoneNumber = null;
+            body[i].role = "public";
+            body[i].providerData = {};
         }
-        res.send(message("success", "auth works", "200", "OK"))
+
+        store.union("_users", body);
+
+        res.send(message("success", "user added successfully", "201", "OK"));
+    })
+app.route('/auth/login')
+    .post(function (req, res) {
+        log(req);
+        var body = req.body;
+        var emq = '_users[email=' + body[0].email + ']'
+        var match = jsonQuery(emq, {
+            data: store.data
+        }).value;
+
+        if (match) {
+            var match_f = { ...match }
+            delete match_f.password
+            out = { "token": generateAccessToken(body[0].email), "user": match_f }
+            res.send(out);
+        } else {
+            return res.send(message("error", "provided email does not exist", "400", "NONEXISTENT_EMAIL"))
+
+        }
+
+
     })
 //i.e /api/product
-app.route('/api/:model', cors())
-    .get(function (req, res) {
+app.route('/api/:model')
+    .get(loginRequired, (req, res, next) => {
         var mkey = req.query._auth
         var model = req.params.model;
         tm = req.query
@@ -259,111 +315,103 @@ app.route('/api/:model', cors())
         delete fquery._query;
         log(req);
 
-        if (auth(mkey)) {
-            if (Object.keys(fquery).length > 0) {
-                res.send(filterBy(store.data[model], fquery))
-            } else {
-                var response = store.get(model);
-
-                if (response === undefined) {
-                    res.send(message("error", "requested model doesn't exist", "404", "UNDEFINED_MODEL"));
-                } else {
-                    //search
-                    if (req.query._search) {
-                        finalr = []
-                        for (let i = 0; i < response.length; i++) {
-                            var vls = Object.values(response[i])
-                            if (vls.find(a => a.includes(req.query._search))) {
-                                finalr.push(response[i])
-                            }
-                        }
-                        response = finalr;
-                    }
-
-                    if (req.query._query) {
-                        tempr = response
-                        response = jsonQuery(req.query._query, {
-                            data: tempr
-                        });
-                        response = response["value"]
-                    }
-                    //limit pagination
-                    if (req.query._limit) {
-                        if (isNaN(req.query._limit)) {
-                            res.send(message("error", "limit invalid datatype for limit,must be a number", "400", "INVALID_DATATYPE"));
-                        } else {
-                            var start = 0;
-                            if (req.query._start && !isNaN(req.query._start)) {
-                                start = req.query._start
-                            }
-                            var end = start + req.query._limit
-                            res.send(response.slice(start, end))
-                        }
-
-                    } else {
-                        //no query
-                        res.send(response)
-                    }
-
-                }
-            }
+        if (Object.keys(fquery).length > 0) {
+            res.send(filterBy(store.data[model], fquery))
         } else {
-            res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
+            var response = store.get(model);
+
+            if (response === undefined) {
+                res.send(message("error", "requested model doesn't exist", "404", "UNDEFINED_MODEL"));
+            } else {
+                //search
+                if (req.query._search) {
+                    finalr = []
+                    for (let i = 0; i < response.length; i++) {
+                        var vls = Object.values(response[i])
+                        if (vls.find(a => a.includes(req.query._search))) {
+                            finalr.push(response[i])
+                        }
+                    }
+                    response = finalr;
+                }
+
+                if (req.query._query) {
+                    tempr = response
+                    response = jsonQuery(req.query._query, {
+                        data: tempr
+                    });
+                    response = response["value"]
+                }
+                //limit pagination
+                if (req.query._limit) {
+                    if (isNaN(req.query._limit)) {
+                        res.send(message("error", "limit invalid datatype for limit,must be a number", "400", "INVALID_DATATYPE"));
+                    } else {
+                        var start = 0;
+                        if (req.query._start && !isNaN(req.query._start)) {
+                            start = req.query._start
+                        }
+                        var end = start + req.query._limit
+                        res.send(response.slice(start, end))
+                    }
+
+                } else {
+                    //no query
+                    res.send(response)
+                }
+
+            }
         }
+
     })
-    .post(function (req, res) {
+    .post(loginRequired, (req, res, next) => {
         log(req);
         var model = req.params.model;
         var body = req.body;
         for (let i = 0; i < body.length; i++) {
             body[i]._id = uuidv4();
-            body[i]._timestamp = timestamp();
+            body[i]._meta = {}
+            body[i]._meta.createdAt = timestamp();
         }
 
         //var bodyj = JSON.stringify(body);
         store.union(model, body);
         res.send(message("success", "data added successfully", "201", "OK"));
     })
-    .delete(function (req, res) {
+    .delete(loginRequired, (req, res, next) => {
         log(req);
-        if (auth(req.query._auth)) {
-            var model = req.params.model;
-            var affected = 0
-            console.log(store.data[model].length)
-            for (var i = store.data[model].length - 1; i > -1; i--) {
-                if (isContainedIn(req.body.query, store.data[model][i])) {
-                    store.data[model].splice(i, 1);
-                    affected++
-                }
+        var model = req.params.model;
+        var affected = 0
+        console.log(store.data[model].length)
+        for (var i = store.data[model].length - 1; i > -1; i--) {
+            if (isContainedIn(req.body.query, store.data[model][i])) {
+                store.data[model].splice(i, 1);
+                affected++
             }
-            store.save();
-            var msg = affected + " row(s) affected";
-            res.send(message("success", msg, "200", "OK"))
-        } else {
-            res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
         }
+        store.save();
+        var msg = affected + " row(s) affected";
+        res.send(message("success", msg, "200", "OK"))
+
 
 
     })
-    .put(function (req, res) {
+    .put(loginRequired, (req, res, next) => {
         log(req);
-        if (auth(req.query._auth)) {
-            var model = req.params.model;
-            //var body = req.body;
-            var affected = 0
-            for (let i = 0; i < store.data[model].length; i++) {
-                if (isContainedIn(req.body.query, store.data[model][i])) {
-                    store.data[model][i] = oupdate(store.data[model][i], req.body.data);
-                    affected++
-                }
+        var model = req.params.model;
+        //var body = req.body;
+        var affected = 0
+        for (let i = 0; i < store.data[model].length; i++) {
+            if (isContainedIn(req.body.query, store.data[model][i])) {
+                store.data[model][i] = oupdate(store.data[model][i], req.body.data);
+                affected++
             }
-            store.save()
-            console.log(affected);
-            var msg = affected + " row(s) affected";
-            res.send(message("success", msg, "200", "OK"))
-        } else {
-            res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
         }
+        store.save()
+        console.log(affected);
+        var msg = affected + " row(s) affected";
+        res.send(message("success", msg, "200", "OK"))
+
     })
 
 app.post("/_uploads", upload.any(), function (req, res) {

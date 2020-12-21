@@ -1,5 +1,5 @@
 <template>
-  <div class="col-12 full-height image" style="backgroundg:url('https://source.unsplash.com/collection/12268087')">
+  <div class="col-12 full-height image" style="background:url('https://source.unsplash.com/collection/12268087')">
     <div class="row justify-content-center ">
       <div class="col-lg-5 pt-5g mt-5">
         <div class="row justify-content-center">

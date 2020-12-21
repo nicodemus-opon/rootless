@@ -10,12 +10,17 @@
       <div class="col-lg-6">
         <div class="row">
           <div class=" my-2 col-12">
-            <label> <i class="ci-layers"></i> Collection Name *</label>
+            <label>Collection Name *</label>
             <input type="text" class="form-control" />
           </div>
         </div>
 
         <div class="row drag-contb px-2b py-4">
+          <div class="col-12">
+            <hr>
+            <label class="mb-2" for="">fields</label>
+          </div>
+
           <div class="col-12">
             <div class="card-bordered p-4">
               <i class="ci-menu_duo btn-icon align-middle"></i>
