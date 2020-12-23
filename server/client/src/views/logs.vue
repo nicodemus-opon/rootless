@@ -40,9 +40,11 @@ export default {
     };
   },
   mounted() {
-    const baseURI = "http://localhost:3000/logs?_auth=69420";
-    this.$http.get(baseURI).then(result => {
-      this.logs = result.data.reverse();
+    const baseURI = "http://localhost:3000/logs";
+    var config = { Authorization: this.$store.getters.getUser.apiKey };
+    this.$http.get(baseURI, { headers: config }).then(result => {
+      //console.log(result.data, this.$store.getters.getUser.apiKey)
+      this.logs = result.data;
     });
   }
 };

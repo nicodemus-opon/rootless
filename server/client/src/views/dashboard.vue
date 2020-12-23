@@ -20,18 +20,21 @@
             <i class="ci-close_big" v-show="navtoggled"></i>
           </span>
         </button>
-        
+
         <div
           class="collapse navbar-collapse  flex-column ml-lg-0 ml-3"
           id="navbarCollapse"
         >
           <ul class="navbar-nav ml-auton pb-2" style="width:100%">
             <li class="nav-item pt-2 mr-auto text-right">
-              <a class="nav-link logo-text text" href="#"><img
+              <a class="nav-link logo-text text" href="#"
+                ><img
                   src="rootless.svg"
                   class="prof-imgn rounded-circlen "
                   height="28px"
-              /> ROOTLESS <span class="text-muted">- Acme Corp</span></a>
+                />
+                ROOTLESS <span class="text-muted">- Acme Corp</span></a
+              >
             </li>
             <li class="nav-item pt-2 ">
               <a class="nav-link" href="#">
@@ -111,7 +114,7 @@
                 <i class="ci-data mr-1 align-middle "></i> Logs
               </router-link>
             </li>
-            
+
             <li
               class="nav-item mx-2"
               :class="{ active: $route.name === 'Playground' }"
@@ -176,8 +179,9 @@ export default {
     };
   },
   mounted() {
-    const baseURI = "http://localhost:3000/collections?_auth=69420";
-    this.$http.get(baseURI).then(result => {
+    const baseURI = "http://localhost:3000/collections";
+    var config = { Authorization: this.$store.getters.getUser.apiKey };
+    this.$http.get(baseURI, { headers: config }).then(result => {
       this.models = result.data;
       console.log(this.models);
     });

@@ -141,6 +141,8 @@ import Webcam from "@uppy/webcam";
 import XHRUpload from "@uppy/xhr-upload";
 import Url from "@uppy/url";
 const ImageEditor = require("@uppy/image-editor");
+import Nprogress from "nprogress";
+Nprogress.start();
 
 export default {
   components: {
@@ -154,12 +156,14 @@ export default {
     };
   },
   mounted() {
-    var baseURI = "http://localhost:3000/api/_uploads?_auth=69420";
-    this.$http.get(baseURI).then(result => {
+    var baseURI = "http://localhost:3000/api/_uploads";
+    var config = { Authorization: this.$store.getters.getUser.apiKey };
+    this.$http.get(baseURI, { headers: config }).then(result => {
       this.files = result.data.reverse();
       //this.keys = Object.keys(this.res[0]);
       //console.log(this.files);
     });
+    Nprogress.done();
   },
   methods: {
     truncate(str, n) {

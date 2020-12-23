@@ -31,7 +31,11 @@
 
     --navbar-background: rgba(0, 0, 0, 0.82);
 }
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@font-face {
+    font-family: 'Intern';
+    src: URL('~@/assets/fonts/Inter.woff2') ;
+}
 
 html {
     font-size: 87.5%;
@@ -123,10 +127,12 @@ small,
     top: 0;
     box-shadow: none;
 }
-.btn-lg{
+
+.btn-lg {
     height: 50px !important;
     font-size: 14px !important;
 }
+
 .btn:hover {
     text-decoration: none;
 }
@@ -214,7 +220,7 @@ pre {
     border: 1px solid var(--accent-2);
     background-color: transparent !important;
     padding: 10px;
-    color: var(--foreground)!important;
+    color: var(--foreground) !important;
     border-radius: var(--radius);
     min-height: 40px;
 }
@@ -468,6 +474,7 @@ hr {
     width: 100%;
     box-shadow: none !important;
     cursor: pointer;
+    transition: 0.2s ease-in;
 }
 
 .nav-dash>i {
@@ -495,7 +502,7 @@ hr {
 
 .nav-dash:active {
     color: var(--primary-dark-alt) !important;
-    transition: 0.2s ease-in;
+
     transform: scale(0.99);
 }
 
@@ -735,7 +742,7 @@ th:focus {
 .tabs>li.active {
     border-bottom: 2px solid var(--primary) !important;
     color: var(--foreground) !important;
-   
+
 }
 
 .tabs>li.active>a {
@@ -962,10 +969,12 @@ button:focus {
     height: 20px;
     width: 10px;
 }
+
 @media (max-width: 992px) {
     .navbar-collapse {
         position: fixed;
-        top: 50px; /* adjust to height of navbar */
+        top: 50px;
+        /* adjust to height of navbar */
         left: 0;
         padding-left: 15px;
         padding-right: 15px;
@@ -984,45 +993,76 @@ button:focus {
         transition: left 300ms ease-in-out;
     }
 
-    .navbar-toggler.collapsed ~ .navbar-collapse {
+    .navbar-toggler.collapsed~.navbar-collapse {
         transition: left 500ms ease-in-out;
     }
 }
-.logo-text{
-    font-family: 'Inter' !important;
+
+.logo-text {
     font-weight: 500;
 }
-.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+
+.nav-pills .nav-link.active,
+.nav-pills .show>.nav-link {
     color: var(--foreground);
     background-color: var(--accent-1);
 }
-.drag-cont{
+
+.drag-cont {
     border-radius: var(--radius);
     border: 2px dotted var(--accent-2);
 }
+
 /* Change the white to any color ;) */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active  {
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px var(--accent-1) inset !important;
     box-shadow: 0 0 0 30px var(--accent-1) inset !important;
 }
+
 /*Change text in autofill textbox*/
 input:-webkit-autofill {
     -webkit-text-fill-color: var(--foreground) !important;
     transition: color 5000s ease-in-out 0s;
 }
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
     transition: background-color 5000s ease-in-out 0s;
 }
-.image{
+
+.image {
     box-shadow: inset 0 0 0 5000px var(--navbar-background);
-    background-size:100% !important;
+    background-size: 100% !important;
     background-position: center;
     background-repeat: no-repeat !important;
     backdrop-filter: blur(20px);
+}
+
+.loading {
+    color: transparent;
+    display: inline-flex;
+
+}
+
+.loading:before {
+    content: " " !important;
+}
+
+.loading:after {
+    content: "";
+    width: 14px;
+    height: 14px;
+
+    transform: translateX(-50%);
+    border: solid 2px transparent;
+    border-top-color: white;
+    border-left-color: white;
+    border-radius: 50%;
+
+    animation: spin 0.7s linear infinite;
 }

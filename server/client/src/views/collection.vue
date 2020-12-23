@@ -12,7 +12,6 @@
     </div>
     <div class="row py-2">
       <div class="col-12">
-        
         <div class="py-2 row">
           <div class="col-12 table-responsive">
             <table class="table datat pt-2  pr-2 " id="myTable">
@@ -53,6 +52,8 @@
 </template>
 
 <script>
+import Nprogress from "nprogress";
+Nprogress.start();
 var pluralize = require("pluralize");
 
 import $ from "jquery";
@@ -71,16 +72,21 @@ export default {
       res: []
     };
   },
+  created() {
+    //Nprogress.start();
+  },
   mounted() {
     var slug = this.$route.params.slug;
-    var baseURI = "http://localhost:3000/api/" + slug + "?_auth=69420";
-    this.$http.get(baseURI).then(result => {
+    var baseURI = "http://localhost:3000/api/" + slug;
+    var config = { Authorization: this.$store.getters.getUser.apiKey };
+    this.$http.get(baseURI, { headers: config }).then(result => {
       this.res = result.data;
       this.keys = Object.keys(this.res[0]);
       console.log(this.res);
 
       setTimeout(function() {
         $(".datat").DataTable();
+        Nprogress.done();
       }, 500);
     });
   },

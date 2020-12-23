@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import { store } from "@/store";
 Vue.use(VueRouter)
 
 const routes = [
@@ -52,6 +53,9 @@ const routes = [
       },
 
     ],
+    meta: {
+      requiresAuth: true
+    },
     component: require("../views/dashboard.vue").default,
     redirect: "/app/overview"
   },
@@ -62,23 +66,45 @@ const routes = [
     children: [
       {
         name: "Register",
-        path: "/auth/home",
-        component: require("../views/Home.vue").default
+        path: "/auth/login",
+        component: require("../views/auth-login.vue").default
       },
       {
         name: "Login",
-        path: "/auth/create",
+        path: "/auth/register",
         component: require("../views/create.vue").default
       }
 
     ],
     component: require("../views/auth.vue").default,
-    redirect: "/auth/home"
+    redirect: "/auth/login"
   }
 ]
 
 const router = new VueRouter({
   routes
 })
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // this route requires auth, check if logged in
+    // if not, redirect to login page.
 
+    //Nprogress.start();
+    const loggedin = store.getters.isLoggedIn;
+    console.log(loggedin);
+    if (!store.getters.isLoggedIn) {
+      next({ path: "/auth/login" });
+    } else {
+      next(); // go to wherever I'm going
+    }
+  } else {
+    next(); // does not require auth, make sure to always call next()!
+  }
+});
+router.afterEach((to, from) => {
+  // ...
+  console.log(to.path);
+  console.log(from.path);
+  // Nprogress.done();
+});
 export default router

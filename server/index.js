@@ -52,6 +52,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/', router);
 app.use(express.static("public"));
+const path_s = __dirname + '/client/rootless/dist';
+
+app.use(express.static(path_s));
 app.use(helmet());
 
 const port = process.env.PORT || 3000
@@ -93,14 +96,18 @@ function message(resp, message, code, status) {
     return mresponse;
 }
 function loginRequired(req, res, next) {
-    if (!auth(req.query._auth)) {
+    var auth_t = req.query._auth || req.headers.authorization
+    if (!auth(auth_t)) {
         return res.send(message("error", "Unable to authenticate", "401", "UNAUTHORIZED"));
     }
     next();
 }
 function auth(mykey) {
-
-    if (mykey == authKey) {
+    var emq = '_users[apiKey=' + mykey + ']'
+    var match = jsonQuery(emq, {
+        data: store.data
+    }).value;
+    if (match) {
         return true;
     } else {
         return false;
@@ -166,7 +173,7 @@ function log(x, comment, meta) {
     console.log(activity);
 }
 function generateAccessToken(uid) {
-    return jwt.sign({ uid }, key, { "expiresIn": '1h' });
+    return jwt.sign({ uid }, key, { "expiresIn": '1d' });
 }
 
 app.all('*', function (req, res, next) {
@@ -181,7 +188,7 @@ app.all('*', function (req, res, next) {
     }
 });
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname + '/public/indexb.html'));
+    res.sendFile(path.join(__dirname + '/client/rootless/dist/index.html'));
 })
 app.get('/api', (req, res) => {
     res.send(message("success", "rootless server running", "200", "SERVER_OK"));
@@ -205,11 +212,7 @@ app.get('/brief', (req, res) => {
     log(req);
     res.send(Object.keys(store.data));
 })
-app.get('/logs', cors(), (req, res) => {
-    if (!auth(req.query._auth)) {
-        res.send(message("error", "Unable to authenticate,invalid or missing apikey", "401", "UNAUTHORIZED"));
-        return 0;
-    }
+app.get('/logs',loginRequired, (req, res) => {
     log(req);
     store.set("_logs", store.get("_logs").slice(0).slice(-20));
 
@@ -269,6 +272,7 @@ app.route('/auth/register')
             body[i].apiKey = uuidv4().toUpperCase();
             body[i].password = bcrypt.hashSync(body[i].password, 10);
             body[i].emailVerified = false;
+            body[i].enabled = true;
             body[i].photoURL = null;
             body[i].phoneNumber = null;
             body[i].role = "public";
@@ -287,12 +291,16 @@ app.route('/auth/login')
         var match = jsonQuery(emq, {
             data: store.data
         }).value;
-
         if (match) {
             var match_f = { ...match }
-            delete match_f.password
-            out = { "token": generateAccessToken(body[0].email), "user": match_f }
-            res.send(out);
+            if (bcrypt.compareSync(body[0].password, match.password)) {
+                delete match_f.password
+                out = { "token": generateAccessToken(body[0].email), "user": match_f }
+                return res.send(out);
+            } else {
+                return res.send(message("error", "invalid password", "400", "INVALID_PASSWORD"))
+
+            }
         } else {
             return res.send(message("error", "provided email does not exist", "400", "NONEXISTENT_EMAIL"))
 
@@ -455,6 +463,12 @@ app.get('/d/:_id', cors(), (req, res) => {
 app.get('*', function (req, res) {
     res.send(message("error", "No such file/path", "404", "PATH_NOT_FOUND"));
 });
+/*
+app.use(function (err, req, res, next) {
+    //res.status(err.status || 500);
+    res.status(200).send(message("error", err.message, "500", "SERVER_ERROR"));
+});
+*/
 var server = app.listen(port, () => {
     console.log(`Rootless 🌲 listening at http://localhost:${port}`)
 })
